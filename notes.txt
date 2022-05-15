@@ -1,0 +1,196 @@
+Generics
+               ------------
+- Creating TypeSafe members.
+- Generic can be defined for
+    a) Properties
+    b) Methods
+    c) Classes
+    d) Parameters
+- Generic Type is defined by using the literal "<T>"
+- "T" refers to type and it is formal.
+
+Ex:
+interface IOracle
+{
+    UserName:string;
+    Password:string;
+    Database:string;
+}
+interface IMySql
+{
+    Host:string;
+    User:string;
+    Password:string;
+    Database:string;
+}
+interface IMongoDb
+{
+    Url:string;
+}
+
+
+class Database
+{
+    public Connection<T>(connectionString:T) {
+        for(var property in connectionString)
+        {
+            console.log(`${property} : ${connectionString[property]}`);
+        }
+    }
+}
+
+console.log(`------ Connecting with Oracle -------`);
+let oracle = new  Database();
+oracle.Connection<IOracle>({UserName:"scott", Password:"tiger", Database: "EmpDb"});
+
+console.log(`----- Connecting with MySql -------`);
+let mysql = new Database();
+mysql.Connection<IMySql>({Host:'localhost', User: 'root', Password:'1234', Database: 'StudentDb'});
+
+console.log(`----- Connecting with MongoDb -------`);
+let mongo = new Database();
+mysql.Connection<IMongoDb>({Url: "mongodb://127.0.0.1:27017"});
+
+Ex:
+interface IProduct
+{
+    Name:string;
+    Price:number;
+}
+interface IEmployee
+{
+    FirstName:string;
+    LastName:string;
+    Designation:string;
+}
+
+class DataService
+{
+    public GetOneRecord<T>(data:T){
+        for(var property in data){
+            console.log(`${property} : ${data[property]}`);
+        }
+    }
+    public GetAll<T>(data:T[]){
+        for(var item of data){
+            console.log(item);
+        }
+    }
+}
+
+let product = new DataService();
+product.GetOneRecord<IProduct>({Name:"TV", Price:45600});
+product.GetAll<IProduct>([{Name:"Mobile", Price:56000.33},{Name:"Watch", Price: 3400.33}]);
+
+
+FAQ: Can we extend Generic Type?
+Ans: Yes.
+
+FAQ: Why to extend Generic Type?
+Ans:  Generic types are not configured to handle various properties extending generic types allows the type to handle properties.
+          You have to create a custom type [Contract | Class]
+          and extend the generic.
+
+Ex:
+interface IProduct
+{
+    Name:string;
+    Price:number;
+}
+interface IEmployee
+{
+    Name:string;
+    LastName:string;
+    Designation:string;
+}
+
+class DataService
+{
+    public GetOneRecord<T>(data:T){
+        for(var property in data){
+            console.log(`${property} : ${data[property]}`);
+        }
+    }
+    public GetAll<T extends IProduct|IEmployee>(data:T[]){
+        for(var item of data){
+            console.log(item.Name);
+        }
+    }
+}
+console.log(`-----Product------`);
+let product = new DataService();
+product.GetOneRecord<IProduct>({Name:"TV", Price:45600});
+product.GetAll<IProduct>([{Name:"Mobile", Price:56000.33},{Name:"Watch", Price: 3400.33}]);
+
+console.log(`----Employee-----`);
+let emp = new DataService();
+emp.GetOneRecord<IEmployee>({Name:"Raj", LastName:"Kumar", Designation:"Developer"});
+emp.GetAll<IEmployee>([{Name:"Tom", LastName:"Hanks", Designation:"Manager"}]);
+
+
+FAQ: Can a method return type have Generic?
+Ans: Yes.
+
+Ex:
+function Sum(x,y) {
+    return x + y;
+}
+class Demo
+{
+    public Print<T>(a:T, b:T): T {
+        return Sum(a,b);
+    }
+}
+let obj = new Demo();
+console.log(obj.Print<number>(10,30));
+
+
+FAQ: Can we define a Generic Class?
+Ans: Yes.
+
+FAQ: Why we need a Generic class?
+Ans: To configure Generic type memory for class, which will be shared to "Properties" and "contructor parameters".
+
+Syntax:
+
+class Demo<T>
+{
+    constructor(param:T){
+
+    }
+    public Property:T;
+    public NonGeneric:string;
+    public Method<T>(Param:T){
+
+    }
+}
+let obj = new Demo<number>(10);
+obj.Property = 13000;
+obj.Method<boolean>(true);
+
+Dependency Injection
+- It is a software design pattern that defines how an object holds its dependencies.
+- It uses a provider and injector.
+- Provider is used to locate dependencies.
+- Injector is used to inject the dependencies.
+
+Ex:
+class DataService
+{
+    public GetProducts(){
+        return [{Name:"TV", Price:23400}, {Name:"Mobile",Price:45500}];
+    }
+}
+
+class ProductComponent
+{
+    constructor(private data: DataService){
+
+    }
+    public PrintProducts(){
+        for(var item of this.data.GetProducts())
+        {
+            console.log(item.Name + ":" + item.Price);
+        }
+    }
+}
